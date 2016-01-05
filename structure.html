@@ -9,9 +9,28 @@
     <script src="jquery-ui.1.11.4.min.js"></script>
     <script src="three_r71.min.js"></script>
     <script src="surface.min.js"></script>
-    <script src="full_ui_all.min.js"></script> 
+    <!--script src="full_ui_all.min.js"></script-->
+
+    <script src="Detector.js"></script>
+  <script src="CanvasRenderer.js"></script>
+
+  <script src="TrackballControls.js"></script>
+  <script src="OrthographicTrackballControls.js"></script>
+  <script src="Projector.js"></script>
+
+  <script src="icn3d.js"></script>
+  <script src="full_ui.js"></script>
+
+    <script type='text/javascript'>Ext = {buildSettings:{"scopeResetCSS":true }};</script>
+    <script type="text/javascript" src="http://www.ncbi.nlm.nih.gov/projects/sviewer/js/sviewer.js" id="autoload"></script>
 </head>
+
 <body>
+<div id="sv1" class="SeqViewerApp">
+    <!-- NC_000001.11 is chromosome 1 in GRCh38, the current
+    human reference genome assembly -->
+    <a href="?embedded=true&id=NC_000001.11"><a>
+</div>
     <div id="icn3dwrap"></div>
 <script type="text/javascript">
       // simple interface
@@ -44,5 +63,6 @@
              icn3dui.loadStateFile("select :1-20 | command 1-20 | description residues 1-20; color greens");
         }); 
 </script>
+
 </body>
 </html>
