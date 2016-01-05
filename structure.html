@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <head>
     <meta charset="UTF-8">
     <title>Document</title>
     <link rel="stylesheet" href="jquery-ui.1.11.4.min.css">
@@ -44,25 +44,34 @@
     */
       // or advanced interface
         var cfg = {
-            divid: 'icn3dwrap',
-            width: 400,
-            height: 400,
-            resize: false,
-            rotate: false,
-            showmenu: false
+        divid: 'icn3dwrap',
+        width: 400,
+        height: 400,
+        resize: false,
+        rotate: false,
+        showmenu: false
         };
         cfg['mmdbid'] = '2por';
-
         var icn3dui = new iCn3DUI(cfg);
-
         //icn3dui.show3DStructure();
-
         // communicate with the 3D viewer with chained functions
+        
         $.when(icn3dui.show3DStructure()).then(function() {
-             icn3dui.setOption('color', 'cyan');
-             icn3dui.loadStateFile("select :1-20 | command 1-20 | description residues 1-20; color greens");
-        }); 
+        icn3dui.setOption('color', 'cyan');
+        icn3dui.loadStateFile("select :1-20 | command 1-20 | description residues 1-20; color greens");
+        });
+        });
+        </script>
+    </head>
+    <body>
+        <div id="icn3dwrap"></div>
+        <div id="sv1" class="SeqViewerApp">
+            <!-- NC_000001.11 is chromosome 1 in GRCh38, the current
+            human reference genome assembly -->
+            <a href="?embedded=true&id=NC_000001.11"><a>
+            </div>
+        </body>
+    </html>
 </script>
-
 </body>
 </html>
