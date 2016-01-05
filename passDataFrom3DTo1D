@@ -1,0 +1,5 @@
+f = new UUD.FileUploader({data:'823671856  140   142\n823671856  145   148', track_name:'asdf4'}); 
+f.upload(); 
+f.getPromise().done(function(tl) { 
+  SeqView.App.getApps()[0].reload('id=823671856&mk=30||00ff00&tracks=[id:' + tl.GetTracks()[0].GetTMSId() + ']'); 
+});
