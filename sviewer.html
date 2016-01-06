@@ -32,7 +32,7 @@ console.log("data: " + data);
 
 	    SeqViewOnReady(function() {
 			if(data !== undefined && data !== '') {
-			  var url = 'id=' + gi + '&tracks=';
+			  var url = 'id=' + gi + '&tracks=[id:STD1]';
 
 			  for(var i = 0, il = dataArray.length; i < il; ++i) {
 				var track_name = track + i;
