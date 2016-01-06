@@ -1,0 +1,70 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>NCBI Sequence Viewer</title>
+
+    <!-- Docs: http://www.ncbi.nlm.nih.gov/tools/sviewer/embedding-api/ -->
+    <script type="text/javascript" src="//www.ncbi.nlm.nih.gov/projects/sviewer/js/sviewer.js" id="autoload"></script>
+  </head>
+  <body>
+    <div id="sv1" class="SeqViewerApp">
+    	<!--a href="?embedded=true&id=2098266"></a-->
+    </div>
+
+	<script>
+		// separating the GET parameters from the current URL
+		if(document.URL.indexOf("?") === -1) {
+		  alert("Please include '?id=...' in your url");
+		}
+
+		var getParams = document.URL.split("?");
+		// transforming the GET parameters into a dictionnary
+		var search = getParams[getParams.length - 1];
+		var params = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+
+		var gi = params.id;
+		var data, track;
+		if(params.data !== undefined) data = params.data.replace(/gi/g, '\n' + gi);
+		if(params.track !== undefined) track = params.track;
+
+console.log("data: " + data);
+		var dataArray = data.split(';');
+
+	    SeqViewOnReady(function() {
+			if(data !== undefined && data !== '') {
+			  var url = 'id=' + gi + '&tracks=';
+
+			  for(var i = 0, il = dataArray.length; i < il; ++i) {
+				var track_name = track + i;
+				var f = new UUD.FileUploader({data:dataArray[i], track_name: track_name});
+				f.upload();
+				f.getPromise().done(function(tl) {
+				  url += '[id:' + tl.GetTracks()[0].GetTMSId() + '],';
+				});
+			  }
+
+			  setTimeout(function(){
+				  SeqView.App.getApps()[0].reload(url);
+			  }, 1000);
+			}
+
+			var app = SeqView.App.findAppByDivId('sv1');
+			app.setTooltipPreprocessor(function(linksList) {
+				if(linksList.length > 0) {
+				var label = linksList[0].links[0].label;
+				var pos = label.indexOf('..');
+				var startStr = label.substr(0, pos);
+				var endStr = label.substr(pos + 2);
+
+				var start = startStr.substr(startStr.lastIndexOf('(') + 1);
+				var end = endStr.substr(0, endStr.indexOf(')'));
+
+				var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"/wangjiy/icn3d2/test.html?gi=" + gi + "&command=select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test"}]};
+
+				linksList.push(link);
+				}
+			});
+	    });
+	</script>
+  </body>
+</html>
