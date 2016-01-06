@@ -59,7 +59,14 @@ console.log("data: " + data);
 				var start = startStr.substr(startStr.lastIndexOf('(') + 1);
 				var end = endStr.substr(0, endStr.indexOf(')'));
 
-				var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"/wangjiy/icn3d2/test.html?gi=" + gi + "&command=select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test"}]};
+				var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"/wangjiy/icn3d2/test.html?gi=" + gi + "&command=color grey; select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+
+				linksList.push(link);
+				}
+				else {
+				start = 1;
+				end = 2;
+				var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"/wangjiy/icn3d2/test.html?gi=" + gi + "&command=color grey; select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
 
 				linksList.push(link);
 				}
@@ -68,3 +75,4 @@ console.log("data: " + data);
 	</script>
   </body>
 </html>
+
