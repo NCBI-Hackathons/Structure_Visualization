@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- Docs: http://www.ncbi.nlm.nih.gov/tools/sviewer/embedding-api/ -->
+    <script type="text/javascript" src="http://www.ncbi.nlm.nih.gov/core/jquery/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="http://www.ncbi.nlm.nih.gov/projects/sviewer/js/sviewer.js" id="autoload"></script>
+  </head>
+  <body>
+    <div id="sv1" class="SeqViewerApp">
+      <!-- NC_000001.11 is chromosome 1 in GRCh38, the current
+      human reference genome assembly -->
+      <a href="?embedded=true&id=27894321&url=http://ncbi-hackathon-jan-structure.s3-website-us-east-1.amazonaws.com/27894321.bed"></a>
+    </div>
+    <script>
+    jQuery(function() {
+    SeqViewOnReady(function() {
+    SeqView.Selection.prototype.x_checkJobStatus = SeqView.Selection.prototype.checkJobStatus;
+    SeqView.Selection.prototype.checkJobStatus = function(data, sel_tooltip, area) {
+    var obj = data[0];
+    var start_pos = Number(obj.text.match(/Location:.+?>(\d+)</)[1]);
+    var length = Number(obj.text.match(/Length:.+?>(\d+)</)[1]);
+    var end_pos = start_pos + length - 1;
+    var obj_position = start_pos + '-' + end_pos;
+    var fn = function(linksList) {
+    if(linksList.length > 0) {
+    var label = linksList[0].links[0].label;
+    var pos = label.indexOf('..');
+    var startStr = label.substr(0, pos);
+    var endStr = label.substr(pos + 2);
+    var start = startStr.substr(startStr.lastIndexOf('(') + 1);
+    var end = endStr.substr(0, endStr.indexOf(')'));
+    var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov//wangjiy/icn3d2/test.html?gi=" + 27894321 + "&command=color grey; select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+    linksList.push(link);
+    }
+    else {
+    var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov/wangjiy/icn3d2/test.html?gi=" + 27894321 + "&command=color grey; select :" + obj_position + " | name res" + obj_position + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+    linksList.push(link);
+    };
+    };
+    var app = SeqView.App.findAppByDivId('sv1');
+    app.setTooltipPreprocessor(fn);
+    this.x_checkJobStatus(data, sel_tooltip, area);
+    app.setTooltipPreprocessor();
+    };
+    });
+    });
+    /*
+    SeqViewOnReady(function() {
+    var app = SeqView.App.findAppByDivId('sv1');
+    app.setTooltipPreprocessor(function(linksList) {
+    if(linksList.length > 0) {
+    var label = linksList[0].links[0].label;
+    var pos = label.indexOf('..');
+    var startStr = label.substr(0, pos);
+    var endStr = label.substr(pos + 2);
+    var start = startStr.substr(startStr.lastIndexOf('(') + 1);
+    var end = endStr.substr(0, endStr.indexOf(')'));
+    var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov//wangjiy/icn3d2/test.html?gi=" + 27894321 + "&command=color grey; select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+    linksList.push(link);
+    }
+    else {
+    start = 1;
+    end = 2;
+    var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov/wangjiy/icn3d2/test.html?gi=" + 27894321 + "&command=color grey; select :" + start + "-" + end + " | name res" + start + "-" + end + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+    linksList.push(link);
+    }
+    });
+    });
+    */
+    </script>
+  </body>
+</html>
