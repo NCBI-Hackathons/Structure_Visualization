@@ -1,0 +1,109 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>NCBI Sequence Viewer</title>
+
+    <!-- Docs: http://www.ncbi.nlm.nih.gov/tools/sviewer/embedding-api/ -->
+    <script type="text/javascript" src="http://www.ncbi.nlm.nih.gov/core/jquery/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="//www.ncbi.nlm.nih.gov/projects/sviewer/js/sviewer.js" id="autoload"></script>
+  </head>
+  <body>
+    <div id="sv1" class="SeqViewerApp">
+    	<!--a href="?embedded=true&id=2098266"></a-->
+    </div>
+
+	<script>
+		// separating the GET parameters from the current URL
+		if(document.URL.indexOf("?") === -1) {
+		  alert("Please include '?id=...' in your url");
+		}
+
+		var getParams = document.URL.split("?");
+		// transforming the GET parameters into a dictionnary
+		var search = getParams[getParams.length - 1];
+		var params = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+
+		var gi = params.id;
+		var data, track;
+		if(params.data !== undefined) data = params.data.replace(/gi/g, '\n' + gi);
+		if(params.track !== undefined) track = params.track;
+
+		// data of a bed file is in the following format
+		// gi start-1 end desc\ngi start-1 end desc | trackname; gi start-1 end desc | trackname
+		// The sequence viewer is zero-based, for residue 10-11, we need to specify "gi 9 11". We can add many ranges witht the separator "\n". We also chose to use semicolon ";" to separate different tracks
+
+console.log("data: " + data);
+		var dataArray = data.split(';');
+
+    	jQuery(function() {
+	    SeqViewOnReady(function() {
+			// add the sequence track
+			var url = 'id=' + gi + '&tracks=[key:sequence_track,name:Sequence,display_name:Sequence,id:STD1,category:Sequence,annots:Sequence,ShowLabel:false,shown:true,order:1]';
+
+			// add the site Features track
+			url += '[key:feature_track,name:Other features---site,display_name:site Features - CDD,id:STD3,subkey:site,category:Features,subcategory:site Features,annots:CDD,Layout:Adaptive,LinkedFeat:Packed,shown:true,order:3]';
+
+			// add the psec_str Features track
+			url += '[key:feature_track,name:Other features---psec_str,display_name:psec_str Features,id:STD4,subkey:psec_str,category:Features,subcategory:psec_str Features,annots:Unnamed,Layout:Adaptive,LinkedFeat:Packed,shown:true,order:4]';
+
+	    	// sequentially uploading the tracks
+	    	function deferredSequentialDo(dataArray, index) {
+			  if(typeof (index) === 'undefined'){
+				index = 0;
+			  }
+
+			  if(index < dataArray.length){
+			    // get the data for the track and the track name
+			    var data_track = dataArray[index].split(' | ');
+				var f = new UUD.FileUploader({data:data_track[0], track_name: data_track[1]});
+				// upload the track
+				f.upload();
+
+				f.getPromise().done(function(tl) {
+				  url += '[id:' + tl.GetTracks()[0].GetTMSId() + ']';
+				  if(index == dataArray.length - 1) {
+console.log("url: " + url);
+				    SeqView.App.getApps()[0].reload(url);
+				  }
+
+				  deferredSequentialDo(dataArray, index + 1);
+				});
+			  }
+	    	}
+
+			if(data !== undefined && data !== '') {
+			  // sequentially uploading the tracks
+			  deferredSequentialDo(dataArray);
+			}
+
+			// Hack the function checkJobStatus to get the gi, start position, and length
+			//   so that we can use the information to generate a link to the 3D viewer iCn3D
+			SeqView.Selection.prototype.x_checkJobStatus = SeqView.Selection.prototype.checkJobStatus;
+			SeqView.Selection.prototype.checkJobStatus = function(data, sel_tooltip, area) {
+				var obj = data[0];
+				var start_pos = Number(obj.text.match(/Location:.+?>(\d+)</)[1]);
+				var length = Number(obj.text.match(/Length:.+?>(\d+)</)[1]);
+				var localGi = Number(obj.text.match(/region:.+?>(\d+)</)[1]);
+				var end_pos = start_pos + length - 1;
+				var obj_position = start_pos + '-' + end_pos;
+
+				var fn = function(linksList) {
+					// a link to the 3D viewer iCN3D
+					var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov//wangjiy/icn3d2/test.html?gi=" + localGi + "&command=color grey; select :" + obj_position + " | name residue" + obj_position + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+					linksList.push(link);
+				};
+
+				// add the link through the function setTooltipPreprocessor
+				var app = SeqView.App.findAppByDivId('sv1');
+				app.setTooltipPreprocessor(fn);
+
+				// call the hacked function checkJobStatus
+				this.x_checkJobStatus(data, sel_tooltip, area);
+				app.setTooltipPreprocessor();
+			};
+	    });
+	    });
+	</script>
+  </body>
+</html>
+
