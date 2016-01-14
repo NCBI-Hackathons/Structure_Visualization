@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>iCn3D Struture Viewer</title>
+
+</head>
+<body>
+
+  <div id='div0'></div>
+
+  <link rel="stylesheet" href="//www.ncbi.nlm.nih.gov/Structure/icn3d/jquery-ui.1.11.4.min.css">
+  <link rel="stylesheet" href="//www.ncbi.nlm.nih.gov/Structure/icn3d/icn3d_full_ui.css">
+
+  <script src="//www.ncbi.nlm.nih.gov/Structure/icn3d/jquery-1.10.2.min.js"></script>
+  <script src="//www.ncbi.nlm.nih.gov/Structure/icn3d/jquery-ui.1.11.4.min.js"></script>
+
+  <script src="//www.ncbi.nlm.nih.gov/Structure/icn3d/three_r71.min.js"></script>
+  <script src="//www.ncbi.nlm.nih.gov/Structure/icn3d/surface.min.js"></script>
+
+  <script src="//www.ncbi.nlm.nih.gov/Structure/icn3d/full_ui_all.min.js"></script>
+
+  <script type="text/javascript">
+
+    // separating the GET parameters from the current URL
+    if(document.URL.indexOf("?") === -1) {
+      alert("Please include '?pdbid=1GPK,2POR,...' in your url");
+    }
+
+    var getParams = document.URL.split("?");
+    // transforming the GET parameters into a dictionnary
+    var search = getParams[getParams.length - 1];
+    var params = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+
+    // for mmdb structures, pass the parameters after the first "&" sign
+    var inpara = "";
+    var ampPos = document.URL.indexOf("&");
+    if(ampPos !== -1) {
+      inpara = document.URL.substr(ampPos);
+    }
+
+    var gi = params.gi;
+    var mmdbid = params.mmdbid;
+    var pdbid = params.pdbid;
+    var cid = params.cid;
+    var mmcif = params.mmcif;
+
+    var align = params.align;
+
+    var width = params.width;
+    var height = params.height;
+
+    var command = params.command; // ";" separated commands
+
+    if(width === undefined) width = '100%';
+    if(height === undefined) height = '100%';
+
+    var resize = true;
+
+    var showmenu = params.showmenu;
+    if(showmenu === undefined || showmenu == 'true' || showmenu == '1') {
+      showmenu = true;
+    }
+    else if(showmenu == 'false' || showmenu == '0') {
+      showmenu = false;
+    }
+
+    var rotate = params.rotate;
+    if(rotate === undefined) {
+      rotate = 'right';
+    }
+
+    $( document ).ready(function() {
+      function setupViewer(idName, idValue) {
+        var maxStructure = 5; // show max 5 structures
+
+        var idArray = idValue.replace(/\s/g, '').split(',');
+
+        if(idArray.length > 1) {
+          resize = false;
+
+          if(width.indexOf('%') != -1) {
+            width = 400;
+            height = 400;
+          }
+        }
+
+        iCn3DUI.prototype.setTools = function() { var me = this;
+			// start of original code ==============
+			var html = "";
+
+			html += "  <div id='" + me.pre + "selection' style='position:absolute; z-index:555; float:left; display:table-row; margin: 32px 0px 0px 3px;'>";
+			html += "    <table style='margin-top: 3px;'><tr valign='center'>";
+
+			if(me.cfg.cid === undefined) {
+				html += "        <td valign='top'><span class='commandTitle'>Structure:</span><br/>";
+				html += "        <div style='margin-top:-3px;'><select id='" + me.pre + "structureid' multiple size='1' style='min-width:50px;'>";
+				html += "        </select></div></td>";
+
+				if(me.cfg.align !== undefined) {
+					html += "        <td valign='top'><span class='commandTitle'>Aligned:</span><br/>";
+					html += "        <div style='margin-top:-3px;'><select id='" + me.pre + "alignChainid' multiple size='1' style='min-width:50px;'>";
+					html += "        </select></div></td>";
+				}
+				else {
+					html += "        <td valign='top'><span class='commandTitle'>Chain:</span><br/>";
+					html += "        <div style='margin-top:-3px;'><select id='" + me.pre + "chainid' multiple size='1' style='min-width:50px;'>";
+					html += "        </select></div></td>";
+				}
+			}
+
+			html += "        <td valign='top'><span class='commandTitle'>Custom:</span><br/>";
+			html += "        <div style='margin-top:-3px;'><select id='" + me.pre + "customResidues' multiple size='1' style='min-width:50px;'>";
+			html += "        </select></div></td>";
+
+			var buttonStyle = me.isMobile() ? 'none' : 'button';
+
+			html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "selectall'><span style='white-space:nowrap' class='commandTitle' title='Select all atoms'>Select<br/>All</span></button></div></td>";
+
+			var seqName;
+			if(me.cfg.align !== undefined) {
+				//seqName = (me.isMobile()) ? 'Aligned<br/>Seq.' : 'Aligned<br/>Sequences';
+				seqName = 'Aligned<br/>Seq.';
+			}
+			else {
+				//seqName = (me.isMobile()) ? 'Seq.' : 'Sequences';
+				seqName = 'Sequ-<br/>ence';
+			}
+
+			if(me.cfg.cid === undefined) {
+				html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "show_sequences'><span style='white-space:nowrap' class='commandTitle' title='Show the sequences of the selected structure'>" + seqName + "</span></button></div></td>";
+
+				//if(me.cfg.align !== undefined) {
+				html += "      <td valign='top'><div id='" + me.pre + "alternateWrapper' style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "alternate'><span style='white-space:nowrap' class='commandTitle' title='Alternate the structures'>Alternate<br/>Selection</span></button></div></td>";
+				//}
+			}
+
+			html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "show_selected'><span style='white-space:nowrap' class='commandTitle' title='Display the selected atoms ONLY'>Display<br/>Selection</span></button></div></td>";
+
+			html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "zoomin_selection'><span style='white-space:nowrap' class='commandTitle' title='Center on the selected atoms and zoom in'>Zoom in<br/>Selection</span></button></div></td>";
+
+			// end of original code ==============
+
+			// only one button below was changed
+			if(me.cfg.align === undefined) {
+				//html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "toggleHighlight'><span style='white-space:nowrap' class='commandTitle' title='Turn on and off the 3D highlight in the viewer'>Toggle<br/>Highlight</span></button></div></td>";
+
+				html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "sviewer'><span style='white-space:nowrap' class='commandTitle' title='Show selected residues in NCBI Sequence Viewer'>Sequence<br/>Viewer</span></button></div></td>";
+			}
+
+			html += "    </tr></table>";
+			html += "    </div>";
+
+			return html;
+        };
+
+        iCn3DUI.prototype.clickSviewer = function() { var me = this;
+			$("#" + me.pre + "sviewer").click(function (e) {
+		//        e.preventDefault();
+				// some chains such "A" and "A_1" may cause problem. We have to separate each chain.
+				var chainHash = {};
+				for(var i in me.icn3d.highlightAtoms) {
+					var residueId = me.icn3d.atoms[i].chain + '_' + me.icn3d.atoms[i].resi;
+
+					if(chainHash[me.icn3d.atoms[i].chain] === undefined) chainHash[me.icn3d.atoms[i].chain] = {};
+					chainHash[me.icn3d.atoms[i].chain][residueId] = 1;
+				}
+
+				var data = '';
+				var cnt = 0;
+				for(var j in chainHash) {
+					var residueHash = chainHash[j];
+
+					var residueArray = Object.keys(residueHash).sort();
+
+					var prevResi = 0, start, end;
+
+					for(var i=0, il=residueArray.length; i < il; ++i) {
+						var pos = residueArray[i].lastIndexOf('_');
+						var chain = residueArray[i].substr(0, pos);
+						var resi = parseInt(residueArray[i].substr(pos + 1));
+
+						if(i == 0) {
+							start = resi - 1; // bed file is zero-based
+						}
+						else if(resi != prevResi + 1) {
+							data += " gi " + start + " " + prevResi + " " + (start+1).toString() + "-" + prevResi + "\n"; // a range
+							start = resi - 1; // bed file is zero-based
+						}
+
+						prevResi = resi; // for resiue 100, the bed file is 99-100
+					}
+
+					data += " gi " + start + " " + prevResi + " " + (start+1).toString() + "-" + prevResi + "\n"; // a range
+					data += " | chain " + j; // track name
+
+					if(cnt != Object.keys(chainHash).length - 1) data += ";"; // end of track
+
+					++cnt;
+				}
+
+				var url = "http://testpubchem.ncbi.nlm.nih.gov/wangjiy/icn3d2/sviewer.html?id=" + me.cfg.gi + "&data=" + data;
+				window.open(url, '_blank');
+			});
+        };
+
+        iCn3DUI.prototype.allCustomEvents = function() { var me = this;
+		      // add custom events here
+		      me.clickSviewer();
+		};
+
+
+        for(var i = 0, il = idArray.length; i < il && i < maxStructure; ++i) {
+          var cfg = {
+              divid: 'div' + i,
+              inpara: inpara,
+              width: width,
+              height: height,
+              resize: resize,
+              rotate: rotate,
+              showmenu: showmenu,
+              command: command
+          };
+          cfg[idName] = idArray[i];
+
+          var icn3dui = new iCn3DUI(cfg);
+
+
+          $.when(icn3dui.show3DStructure()).then(function() {
+		       //icn3dui.setOption('color', 'cyan');
+          });
+        }
+      }
+
+      if(pdbid !== undefined) setupViewer('pdbid', pdbid);
+      if(cid !== undefined) setupViewer('cid', cid);
+      if(mmcif !== undefined) setupViewer('mmcif', mmcif);
+      if(mmdbid !== undefined) setupViewer('mmdbid', mmdbid);
+      if(gi !== undefined) setupViewer('gi', gi);
+
+    }); // document ready
+
+  </script>
+
+</body>
+</html>
+
