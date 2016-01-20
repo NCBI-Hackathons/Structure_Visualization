@@ -146,7 +146,7 @@
 			if(me.cfg.align === undefined) {
 				//html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "toggleHighlight'><span style='white-space:nowrap' class='commandTitle' title='Turn on and off the 3D highlight in the viewer'>Toggle<br/>Highlight</span></button></div></td>";
 
-				html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "sviewer'><span style='white-space:nowrap' class='commandTitle' title='Show selected residues in NCBI Sequence Viewer'>Sequence<br/>Viewer</span></button></div></td>";
+				html += "      <td valign='top'><div style='margin:3px 0px 0px 10px;'><button style='-webkit-appearance:" + buttonStyle + "; height:36px;' id='" + me.pre + "sviewer'><span style='white-space:nowrap' class='commandTitle' title='Show selected residues in NCBI Sequence Viewer'>Export<br/>Features</span></button></div></td>";
 			}
 
 			html += "    </tr></table>";
@@ -167,6 +167,9 @@
 					chainHash[me.icn3d.atoms[i].chain][residueId] = 1;
 				}
 
+				var firstAtom = me.icn3d.getFirstAtomObj(me.icn3d.atoms);
+				var baseResi = firstAtom.resi;
+
 				var data = '';
 				var cnt = 0;
 				for(var j in chainHash) {
@@ -180,6 +183,8 @@
 						var pos = residueArray[i].lastIndexOf('_');
 						var chain = residueArray[i].substr(0, pos);
 						var resi = parseInt(residueArray[i].substr(pos + 1));
+
+						resi = ( resi - baseResi + 1 > 0 ) ? resi - baseResi + 1 : resi;
 
 						if(i == 0) {
 							start = resi - 1; // bed file is zero-based
