@@ -8,8 +8,8 @@
   </head>
   <body>
     <div id="sv1" class="SeqViewerApp">
-      <!-- gi 27894321 correponding to the PDB ID 2ROX -->
-      <a href="?embedded=true&id=27894321&url=http://testpubchem.ncbi.nlm.nih.gov/wangjiy/icn3d2/27894321.bed"></a>
+      <!-- gi 2098266 correponding to the PDB ID 2ROX -->
+      <a href="?embedded=true&id=2098266&url=http://testpubchem.ncbi.nlm.nih.gov/wangjiy/icn3d2/2098266.bed"></a>
     </div>
 
     <script>
@@ -22,13 +22,15 @@
 				var obj = data[0];
 				var start_pos = Number(obj.text.match(/Location:.+?>(\d+)</)[1]);
 				var length = Number(obj.text.match(/Length:.+?>(\d+)</)[1]);
-				var localGi = Number(obj.text.match(/region:.+?>(\d+)</)[1]);
+				//var localGi = Number(obj.text.match(/region:.+?>(\d+)</)[1]);
 				var end_pos = start_pos + length - 1;
 				var obj_position = start_pos + '-' + end_pos;
+				
+				var gi = 2098266;
 
 				var fn = function(linksList) {
 					// a link to the 3D viewer iCN3D
-					var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov//wangjiy/icn3d2/icn3d_embed.html?gi=" + localGi + "&command=color grey; select :" + obj_position + " | name residue" + obj_position + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
+					var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov//wangjiy/icn3d2/icn3d_embed.html?gi=" + gi + "&command=color grey; select :" + obj_position + " | name residue" + obj_position + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
 					linksList.push(link);
 				};
 
