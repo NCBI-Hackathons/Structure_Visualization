@@ -40,6 +40,9 @@ console.log("data: " + data);
 			// add the sequence track
 			var url = 'id=' + gi + '&tracks=[key:sequence_track,name:Sequence,display_name:Sequence,id:STD1,category:Sequence,annots:Sequence,ShowLabel:false,shown:true,order:1]';
 
+			// add the SNP track
+			url += '[key:SNP_track,name:SNP,display_name:SNP,id:STD2,category:Variation,subcategory:dbSNP,annots:SNP,Layout:Adaptive,shown:true,order:2]';
+
 			// add the site Features track
 			url += '[key:feature_track,name:Other features---site,display_name:site Features - CDD,id:STD3,subkey:site,category:Features,subcategory:site Features,annots:CDD,Layout:Adaptive,LinkedFeat:Packed,shown:true,order:3]';
 
@@ -55,6 +58,7 @@ console.log("data: " + data);
 			  if(index < dataArray.length){
 			    // get the data for the track and the track name
 			    var data_track = dataArray[index].split(' | ');
+//console.log("data_track: " + data_track);
 				var f = new UUD.FileUploader({data:data_track[0], track_name: data_track[1]});
 				// upload the track
 				f.upload();
@@ -76,34 +80,29 @@ console.log("url: " + url);
 			  deferredSequentialDo(dataArray);
 			}
 
-			// Hack the function checkJobStatus to get the gi, start position, and length
-			//   so that we can use the information to generate a link to the 3D viewer iCn3D
-			SeqView.Selection.prototype.x_checkJobStatus = SeqView.Selection.prototype.checkJobStatus;
-			SeqView.Selection.prototype.checkJobStatus = function(data, sel_tooltip, area) {
-				var obj = data[0];
-				var start_pos = Number(obj.text.match(/Location:.+?>(\d+)</)[1]);
-				var length = Number(obj.text.match(/Length:.+?>(\d+)</)[1]);
-				var localGi = Number(obj.text.match(/region:.+?>(\d+)</)[1]);
-				var end_pos = start_pos + length - 1;
+			var fn = function(linksList, objinfo) {
+				//obj_info: {
+				//    acc: string, // sequence id (accession.ver)
+				//    title: string, // feature/object title
+				//    start_pos: int, // start position
+				//    end_pos: int // end position
+				//}
+
+				var start_pos = objinfo.start_pos;
+				var end_pos = objinfo.end_pos;
 				var obj_position = start_pos + '-' + end_pos;
 
-				var fn = function(linksList) {
-					// a link to the 3D viewer iCN3D
-					var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"http://testpubchem.ncbi.nlm.nih.gov//wangjiy/icn3d2/icn3d_embed.html?gi=" + localGi + "&command=color grey; select :" + obj_position + " | name residue" + obj_position + " | description test; color red; select aroundsphere | radius 5; color blue"}]};
-					linksList.push(link);
-				};
+				// a link to the 3D viewer iCN3D
+				var link = {"type":"Basic","name":"View in 3D Structure","links":[{"label":"iCn3D","link":"https://www.ncbi.nlm.nih.gov/Structure/icn3d2/icn3d_embed.html?gi=" + gi + "&command=color grey; select :" + obj_position + "; color red; select zone cutoff 5; color blue"}]};
+				linksList.push(link);
 
-				// add the link through the function setTooltipPreprocessor
-				var app = SeqView.App.findAppByDivId('sv1');
-				app.setTooltipPreprocessor(fn);
-
-				// call the hacked function checkJobStatus
-				this.x_checkJobStatus(data, sel_tooltip, area);
-				app.setTooltipPreprocessor();
 			};
+
+			// add the link through the function setTooltipPreprocessor
+			var app = SeqView.App.findAppByDivId('sv1');
+			app.setTooltipPreprocessor(fn);
 	    });
 	    });
 	</script>
   </body>
 </html>
-
