@@ -157,6 +157,7 @@
 		//        e.preventDefault();
 				// some chains such "A" and "A_1" may cause problem. We have to separate each chain.
 				var chainHash = {};
+
 				for(var i in me.icn3d.highlightAtoms) {
 					var residueId = me.icn3d.atoms[i].chain + '_' + me.icn3d.atoms[i].resi;
 
@@ -202,7 +203,8 @@
 					++cnt;
 				}
 
-				var url = "http://testpubchem.ncbi.nlm.nih.gov/wangjiy/icn3d2/sviewer.html?id=" + me.cfg.gi + "&data=" + data;
+console.log("data: " + data);
+				var url = "https://www.ncbi.nlm.nih.gov/Structure/icn3d/sviewer.html?id=" + me.cfg.gi + "&data=" + data;
 				window.open(url, '_blank');
 			});
         };
@@ -247,4 +249,3 @@
 
 </body>
 </html>
-
