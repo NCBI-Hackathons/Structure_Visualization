@@ -58,7 +58,6 @@ console.log("data: " + data);
 			  if(index < dataArray.length){
 			    // get the data for the track and the track name
 			    var data_track = dataArray[index].split(' | ');
-//console.log("data_track: " + data_track);
 				var f = new UUD.FileUploader({data:data_track[0], track_name: data_track[1]});
 				// upload the track
 				f.upload();
