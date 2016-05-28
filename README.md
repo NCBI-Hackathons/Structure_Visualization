@@ -2,8 +2,8 @@
 1-, 2-, and 3-D visualizations of SNPs and Protein Interaction Data
 
 <h2>Usage</h2>
-You can start with the page "start.html" (e.g., <a href="https://www.ncbi.nlm.nih.gov/Structure/icn3d/start.html">https://www.ncbi.nlm.nih.gov/Structure/icn3d/start.html</a>, mouse over SNP position, click "iCn3D" to link to the 3D viewer iCn3D "icn3d_embed.html". In iCn3D, you can click "Sequence Viewer" button to link back to Sequence Viewer "sviewer.html" and show the neighboring residues in tracks. These residues are 5 angstrom from the starting SNP.
+You can start with the page "1d3d.html" (e.g., <a href="https://www.ncbi.nlm.nih.gov/Structure/icn3d/1d3d.html">https://www.ncbi.nlm.nih.gov/Structure/icn3d/1d3d.html</a>, mouse over SNP position, click "iCn3D" to show the SNP (in red) and its neighboring residues (5 angstrom, in blue) in the 3D viewer iCn3D. In iCn3D, you can click "Export Features" button to add the selected residues as tracks in the Sequence Viewer. 
 
 <h2>Tools depending on</h2>
-We embedded NCBI Sequence Viewer in the pages "start.html" and "sviewer.html" to show sequence and annotations. We also embedded NCBI WebGL-based 3D viewer "iCn3D" in the page "icn3d_embed.html". iCn3D was released to GitHub at <a href="https://github.com/ncbi/icn3d">https://github.com/ncbi/icn3d</a>.
+We embedded both NCBI Sequence Viewer and NCBI WebGL-based 3D viewer "iCn3D" in the page "1d3d.html". iCn3D was released to GitHub at <a href="https://github.com/ncbi/icn3d">https://github.com/ncbi/icn3d</a>.
 
